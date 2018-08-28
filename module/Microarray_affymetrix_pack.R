@@ -1,6 +1,5 @@
 ### AFFYMETRIX ARRAY DATA NORMALIZATION custom function pack ###
 
-.libPaths(c(.libPaths(), RLIB))
 library(limma)
 library(RMySQL)
 library(simpleaffy)
