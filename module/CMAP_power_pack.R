@@ -19,6 +19,7 @@ tanimotoCoef = function(A, B) {
 # tanimoto similarity signature ranking
 CMAPSaveTanimotoResultFiles <- function(geneList, lsig, odir, ncore) {
 
+	# check required datasets
 	if(any(!sapply(c('ginfo','sinfo','sig_up','sig_dn','tanimotoCoef'), exists)))
 		stop('REQUIRED OBJECTS : ginfo, sinfo, sig_up, sig_dn, tanimotoCoef')
 
