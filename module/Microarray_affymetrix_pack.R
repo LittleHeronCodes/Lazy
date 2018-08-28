@@ -1,4 +1,4 @@
-### AFFYMETRIX ARRAY DATA NORMALIZATION	custom function pack ###
+### AFFYMETRIX ARRAY DATA NORMALIZATION custom function pack ###
 
 .libPaths(c(.libPaths(), RLIB))
 library(limma)
