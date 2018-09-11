@@ -102,6 +102,22 @@ getTestPValues2 <- function(gfMat, crMat, ncore){
 	return(pvMat)
 }
 
+# t-test p values (NA doesn't exist)
+getTestPValues <- function(gfMat, crMat, ncore){
+	cat('Calculating p values...\n')
+	tcheck = proc.time()
+	pvMat = mclapply(rownames(gfMat), function(g) {
+		midx = gfMat[which(rownames(gfMat) == g),] == 1
+		tres = apply(crMat.f, 1, function(v) t.test(v[which(midx)], v[which(!midx)], alternative='two.sided')$p.value)
+		}, mc.cores = ncore)
+	names(pvMat) = rownames(gfMat)
+	pvMat = do.call(cbind, pvMat)
+	print((proc.time() - tcheck)/60)
+	# print(dim(pvMat))
+
+	return(pvMat)
+}
+
 
 
 
