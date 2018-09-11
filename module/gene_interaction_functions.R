@@ -26,6 +26,8 @@ createGeneTargetMatrix <- function(mut2cell, crMat, ncore){
 # Main effect calculation modified function
 mainEffectsMine <- function(x, queryNeg, targetNeg, eps=1e-04, maxiter=100) {
 
+	cat('Calculating Main Effects...\n')
+	tcheck = proc.time()
 	# initialize
 	z <- x
 	nr <- nrow(z)
@@ -79,6 +81,8 @@ mainEffectsMine <- function(x, queryNeg, targetNeg, eps=1e-04, maxiter=100) {
 	    warning(gettextf("maineffects() did not converge in %d iterations", maxiter), domain = NA)
 	}
 	ans <- list(neg = neg, targetMainEffect = r, queryMainEffect = c, pi = z)
+	print((proc.time() - tcheck)/60)
+	
 	return(ans)
 }
 
