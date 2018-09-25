@@ -112,7 +112,7 @@ getTestPValues <- function(gfMat, crMat, ncore){
 	tcheck = proc.time()
 	pvMat = mclapply(rownames(gfMat), function(g) {
 		midx = gfMat[which(rownames(gfMat) == g),] == 1
-		tres = apply(crMat.f, 1, function(v) t.test(v[which(midx)], v[which(!midx)], alternative='two.sided')$p.value)
+		tres = apply(crMat, 1, function(v) t.test(v[which(midx)], v[which(!midx)], alternative='two.sided')$p.value)
 		}, mc.cores = ncore)
 	names(pvMat) = rownames(gfMat)
 	pvMat = do.call(cbind, pvMat)
