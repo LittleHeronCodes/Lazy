@@ -5,6 +5,9 @@ library(reshape2)
 library(parallel)
 library(ggplot2)
 
+##=============================##
+##  Analysis function wrapper  ##
+##=============================##
 
 # Gene-Target Matrix mean crispr scores
 createGeneTargetMatrix <- function(mut2cell, crMat, ncore){
@@ -123,7 +126,64 @@ getTestPValues <- function(gfMat, crMat, ncore){
 }
 
 
+# t-test p vaules and median for drug-gene testing (NA exists)
+tTestDrugGene <- function(gfMat, drMat, ncore){
+	cat('Calculating p values...\n')
+	tcheck = proc.time()
+	outLs = mclapply(rownames(gfMat), function(g) {
+		midx = gfMat[which(rownames(gfMat) == g),] == 1
+		ex1 = names(which(apply(drMat[,which(midx)],  1, function(v) sum(!is.na(v))) <= 2))
+		ex2 = names(which(apply(drMat[,which(!midx)], 1, function(v) sum(!is.na(v))) <= 2))
+		drMat.f = drMat[which(!rownames(drMat) %in% union(ex1, ex2)),]
 
+		tObj = apply(drMat.f, 1, function(v) t.test(v[which(midx)], v[which(!midx)], alternative='two.sided'))
+		
+		tpval = sapply(tObj, function(ls) ls$p.value)
+		tstat = sapply(tObj, function(ls) ls$statistic)
+		names(tstat) = gsub('.t$','', names(tstat))
+		medDiff = apply(drMat.f, 1, function(v) median(v[which(midx)], na.rm=T) - median(v[which(!midx)], na.rm=T) )
+
+		exfill = rep(NA, length(union(ex1,ex2)))
+		names(exfill) = union(ex1,ex2)
+		tstat = c(tstat, exfill)
+		tstat = tstat[rownames(drMat)]
+		tpval = c(tpval, exfill)
+		tpval = tpval[rownames(drMat)]
+		medDiff = c(medDiff, exfill)
+		medDiff = medDiff[rownames(drMat)]
+
+		return(list(tpval = tpval, tstat = tstat, medDiff = medDiff) )
+		}, mc.cores = ncore)
+	names(outLs) = rownames(gfMat)
+	print((proc.time() - tcheck)/60)
+
+	cat('Creating matrices...\n')
+	drPvMat = do.call(cbind, lapply(outLs, function(ls) ls$tpval) )
+	drMDMat = do.call(cbind, lapply(outLs, function(ls) ls$medDiff) )
+	drTSMat = do.call(cbind, lapply(outLs, function(ls) ls$tstat) )
+
+	cat('Creating data frame...\n')
+	drAltDF = dgiResLs2DataFrame(outLs)
+
+	return(list(drPvMat = drPvMat, drTSMat = drTSMat, drMDMat = drMDMat, drAltDF=drAltDF))
+}
+
+# change dgiRes list output from tTestDrugGene to easier access dataframe (used internally)
+dgiResLs2DataFrame <- function(outLs) {
+	## RUN IN FUNCTION ##
+	dfls = lapply(names(outLs), function(g) {
+			tdf = data.frame(outLs[[g]])
+			tdf$chem = rownames(tdf)
+			tdf$altGene = g
+			return(tdf)	})
+	drAltDF = do.call(rbind, dfls)
+	return(drAltDF)	
+}
+
+
+##======================##
+##  Plotting Functions  ##
+##======================##
 
 # Volcano plots with known interaction
 
