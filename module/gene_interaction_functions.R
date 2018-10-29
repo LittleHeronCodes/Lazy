@@ -162,15 +162,14 @@ tTestDrugGene <- function(gfMat, drMat, ncore){
 	drMDMat = do.call(cbind, lapply(outLs, function(ls) ls$medDiff) )
 	drTSMat = do.call(cbind, lapply(outLs, function(ls) ls$tstat) )
 
-	cat('Creating data frame...\n')
-	drAltDF = dgiResLs2DataFrame(outLs)
+	# cat('Creating data frame...\n')
+	# drAltDF = dgiResLs2DataFrame(outLs)
 
-	return(list(drPvMat = drPvMat, drTSMat = drTSMat, drMDMat = drMDMat, drAltDF=drAltDF))
+	return(list(drPvMat = drPvMat, drTSMat = drTSMat, drMDMat = drMDMat, drAltLs=outLs))
 }
 
-# change dgiRes list output from tTestDrugGene to easier access dataframe (used internally)
+# change dgiRes list output from tTestDrugGene to easier access dataframe
 dgiResLs2DataFrame <- function(outLs) {
-	## RUN IN FUNCTION ##
 	dfls = lapply(names(outLs), function(g) {
 			tdf = data.frame(outLs[[g]])
 			tdf$chem = rownames(tdf)
