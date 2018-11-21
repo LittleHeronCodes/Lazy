@@ -126,6 +126,25 @@ getTestPValues <- function(gfMat, crMat, ncore){
 }
 
 
+# median difference (NA doesn't exist)
+getMedDiff <- function(gfMat, crMat, ncore){
+	cat('Calculating p values...\n')
+	tcheck = proc.time()
+	mdMat = mclapply(rownames(gfMat), function(g) {
+		i = which(rownames(gfMat) == g)
+		med1 = apply(crMat[,which(gfMat[g,] == 1)], 1, median)
+		med2 = apply(crMat[,which(gfMat[g,] == 0)], 1, median)
+		medD = med1-med2
+		}, mc.cores = ncore)
+	names(mdMat) = rownames(gfMat)
+	mdMat = do.call(cbind, mdMat)
+	print((proc.time() - tcheck)/60)
+	# print(dim(mdMat))
+
+	return(mdMat)
+}
+
+
 # t-test p vaules and median for drug-gene testing (NA exists)
 tTestDrugGene <- function(gfMat, drMat, ncore){
 	cat('Calculating p values...\n')
