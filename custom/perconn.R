@@ -1,10 +1,10 @@
 # Database connection function (server)
 
 # connection function
-perconn <- function(db = "", server = TRUE, usern = "", pw = "") {
+perconn <- function(db = "", server = TRUE, usern = "", pw = "", host = "") {
 	require(RMySQL)
 	if(server) {
-		conn <- dbConnect(dbDriver("MySQL"), host = "203.255.191.201", user = usern, password = pw, dbname = db, port = 3307)
+		conn <- dbConnect(dbDriver("MySQL"), host = host, user = usern, password = pw, dbname = db, port = 3307)
 	} else{
 		conn <- dbConnect(dbDriver("MySQL"), user='', password='', dbname=db)
 	}
