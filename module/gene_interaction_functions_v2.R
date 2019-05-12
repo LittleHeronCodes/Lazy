@@ -15,17 +15,17 @@ library(ggplot2)
 
 
 # t-test p values (NA exists)
-getTestPValues2 <- function(gfMat, crMat, ncore){
+getTestPValues2 <- function(labelMat, valueMat, ncore){
 	cat('Calculating p values...\n')
 	tcheck = proc.time()
-	pvMat = mclapply(rownames(gfMat), function(g) {
-		midx = gfMat[which(rownames(gfMat) == g),] == 1
-		ex1 = names(which(apply(crMat[,which(midx)],  1, function(v) sum(!is.na(v))) <= 2))
-		ex2 = names(which(apply(crMat[,which(!midx)], 1, function(v) sum(!is.na(v))) <= 2))
-		crMat.f = crMat[which(!rownames(crMat) %in% union(ex1, ex2)),]
-		tres = apply(crMat.f, 1, function(v) t.test(v[which(midx)], v[which(!midx)], alternative='two.sided')$p.value)
+	pvMat = mclapply(rownames(labelMat), function(g) {
+		midx = labelMat[which(rownames(labelMat) == g),] == 1
+		ex1 = names(which(apply(valueMat[,which(midx)],  1, function(v) sum(!is.na(v))) <= 2))
+		ex2 = names(which(apply(valueMat[,which(!midx)], 1, function(v) sum(!is.na(v))) <= 2))
+		valueMat.f = valueMat[which(!rownames(valueMat) %in% union(ex1, ex2)),]
+		tres = apply(valueMat.f, 1, function(v) t.test(v[which(midx)], v[which(!midx)], alternative='two.sided')$p.value)
 		}, mc.cores = ncore)
-	names(pvMat) = rownames(gfMat)
+	names(pvMat) = rownames(labelMat)
 	pvMat = do.call(cbind, pvMat)
 	print((proc.time() - tcheck)/60)
 	# print(dim(pvMat))
@@ -34,14 +34,15 @@ getTestPValues2 <- function(gfMat, crMat, ncore){
 }
 
 # t-test p values (NA doesn't exist)
-getTestPValues <- function(gfMat, crMat, ncore){
+getTestPValues <- function(labelMat, valueMat, ncore){
 	cat('Calculating p values...\n')
 	tcheck = proc.time()
-	pvMat = mclapply(rownames(gfMat), function(g) {
-		midx = gfMat[which(rownames(gfMat) == g),] == 1
-		tres = apply(crMat, 1, function(v) t.test(v[which(midx)], v[which(!midx)], alternative='two.sided')$p.value)
+	pvMat = mclapply(rownames(labelMat), function(g) {
+		posidx = labelMat[which(rownames(labelMat) == g),] == 1
+		negidx = labelMat[which(rownames(labelMat) == g),] == -1
+		tres = apply(valueMat, 1, function(v) t.test(v[which(posidx)], v[which(negidx)], alternative='two.sided')$p.value)
 		}, mc.cores = ncore)
-	names(pvMat) = rownames(gfMat)
+	names(pvMat) = rownames(labelMat)
 	pvMat = do.call(cbind, pvMat)
 	print((proc.time() - tcheck)/60)
 	# print(dim(pvMat))
@@ -51,16 +52,15 @@ getTestPValues <- function(gfMat, crMat, ncore){
 
 
 # median difference (NA doesn't exist)
-getMedDiff <- function(gfMat, crMat, ncore){
-	cat('Calculating p values...\n')
+getMedDiff <- function(labelMat, valueMat, ncore){
+	cat('Calculating med values...\n')
 	tcheck = proc.time()
-	mdMat = mclapply(rownames(gfMat), function(g) {
-		i = which(rownames(gfMat) == g)
-		med1 = apply(crMat[,which(gfMat[g,] == 1)], 1, median)
-		med2 = apply(crMat[,which(gfMat[g,] == 0)], 1, median)
+	mdMat = mclapply(rownames(labelMat), function(g) {
+		med1 = apply(valueMat[,which(labelMat[g,] == 1)], 1, median)
+		med2 = apply(valueMat[,which(labelMat[g,] ==-1)], 1, median)
 		medD = med1-med2
 		}, mc.cores = ncore)
-	names(mdMat) = rownames(gfMat)
+	names(mdMat) = rownames(labelMat)
 	mdMat = do.call(cbind, mdMat)
 	print((proc.time() - tcheck)/60)
 	# print(dim(mdMat))
@@ -70,16 +70,16 @@ getMedDiff <- function(gfMat, crMat, ncore){
 
 
 # mean difference (NA doesn't exist)
-getMeanDiff <- function(gfMat, crMat, ncore){
+getMeanDiff <- function(labelMat, valueMat, ncore){
 	cat('Calculating p values...\n')
 	tcheck = proc.time()
-	mnMat = mclapply(rownames(gfMat), function(g) {
-		i = which(rownames(gfMat) == g)
-		med1 = apply(crMat[,which(gfMat[g,] == 1)], 1, mean)
-		med2 = apply(crMat[,which(gfMat[g,] == 0)], 1, mean)
+	mnMat = mclapply(rownames(labelMat), function(g) {
+		i = which(rownames(labelMat) == g)
+		med1 = apply(valueMat[,which(labelMat[g,] == 1)], 1, mean)
+		med2 = apply(valueMat[,which(labelMat[g,] ==-1)], 1, mean)
 		medD = med1-med2
 		}, mc.cores = ncore)
-	names(mnMat) = rownames(gfMat)
+	names(mnMat) = rownames(labelMat)
 	mnMat = do.call(cbind, mnMat)
 	print((proc.time() - tcheck)/60)
 	# print(dim(mnMat))
@@ -89,14 +89,15 @@ getMeanDiff <- function(gfMat, crMat, ncore){
 
 
 # t-test p values (NA doesn't exist)
-getKSTestPValues <- function(gfMat, crMat, ncore){
+getKSTestPValues <- function(labelMat, valueMat, ncore){
 	cat('Calculating p values...\n')
 	tcheck = proc.time()
-	pvMat = mclapply(rownames(gfMat), function(g) {
-		midx = gfMat[which(rownames(gfMat) == g),] == 1
-		tres = apply(crMat, 1, function(v) ks.test(v[which(midx)], v[which(!midx)], alternative='two.sided')$p.value)
+	pvMat = mclapply(rownames(labelMat), function(g) {
+		posidx = labelMat[which(rownames(labelMat) == g),] == 1
+		negidx = labelMat[which(rownames(labelMat) == g),] == -1
+		tres = apply(valueMat, 1, function(v) ks.test(v[which(posidx)], v[which(negidx)], alternative='two.sided')$p.value)
 		}, mc.cores = ncore)
-	names(pvMat) = rownames(gfMat)
+	names(pvMat) = rownames(labelMat)
 	pvMat = do.call(cbind, pvMat)
 	print((proc.time() - tcheck)/60)
 
@@ -104,17 +105,38 @@ getKSTestPValues <- function(gfMat, crMat, ncore){
 }
 
 
+getHypTestPValues <- function(labelMat, valueMat, ncore) {
+	cat('Calculating p values...\n')
+	tcheck = proc.time()
+	hypMat = mclapply(rownames(labelMat), function(g) {
+		# allidx = labelMat[which(rownames(labelMat) == g),] != 0
+		# posidx = labelMat[which(rownames(labelMat) == g),] == 1
+		negidx = labelMat[which(rownames(labelMat) == g),] == -1
+
+		phyp = apply(valueMat, 1, function(v) {
+			q = length(which((v + negidx) == 2))
+			phyp = phyper(q, length(which(negidx)), length(which(!negidx)), length(which(v==1)), lower.tail = FALSE)
+			})
+		return(phyp)
+		})
+	names(hypMat) = rownames(labelMat)
+	hypMat = do.call(cbind, hypMat)
+	print((proc.time() - tcheck)/60)
+	
+	return(hypMat)
+}
+
 
 
 
 
 
 # t-test p vaules and median for drug-gene testing (NA exists)
-tTestDrugGene <- function(gfMat, drMat, ncore){
+tTestDrugGene <- function(labelMat, drMat, ncore){
 	cat('Calculating p values...\n')
 	tcheck = proc.time()
-	outLs = mclapply(rownames(gfMat), function(g) {
-		midx = gfMat[which(rownames(gfMat) == g),] == 1
+	outLs = mclapply(rownames(labelMat), function(g) {
+		midx = labelMat[which(rownames(labelMat) == g),] == 1
 		ex1 = names(which(apply(drMat[,which(midx)],  1, function(v) sum(!is.na(v))) <= 2))
 		ex2 = names(which(apply(drMat[,which(!midx)], 1, function(v) sum(!is.na(v))) <= 2))
 		drMat.f = drMat[which(!rownames(drMat) %in% union(ex1, ex2)),]
@@ -137,7 +159,7 @@ tTestDrugGene <- function(gfMat, drMat, ncore){
 
 		return(list(tpval = tpval, tstat = tstat, medDiff = medDiff) )
 		}, mc.cores = ncore)
-	names(outLs) = rownames(gfMat)
+	names(outLs) = rownames(labelMat)
 	print((proc.time() - tcheck)/60)
 
 	cat('Creating matrices...\n')
