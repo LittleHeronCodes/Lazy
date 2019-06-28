@@ -1,7 +1,5 @@
 ### PATHWAY ANALYSIS custom function pack ###
 
-.libPaths(c(.libPaths(), RLIB))
-
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(GSEABase)
@@ -29,7 +27,7 @@ enricherForGeneListWrapper = function(glist, term, pcut=.1, qcut=.2) {
 	enrGeneLs = list(
 		up   = glist$upGene,
 		down = glist$dnGene,
-		both = unique(unlist(glist[c('upGene', 'dnGene')]))
+		# both = unique(unlist(glist[c('upGene', 'dnGene')]))
 	)
 
 	enr_res = lapply(enrGeneLs, function(gset) {
