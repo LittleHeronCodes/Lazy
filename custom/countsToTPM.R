@@ -5,12 +5,12 @@ counts_to_TPM <- function(counts, featureLength) {
 	stopifnot(length(featureLength) == nrow(counts))
 	stopifnot(names(featureLength) == rownames(counts))
 
-	tpm <- apply(counts, 2, function(x) {
-		rpk = x / featureLength
-		scalingFactor = sum(rpk) / 1e6
-		return(rpk / scalingFactor)
-	})
+	x = counts / featureLength
+	tpm = t( t(x) * 1e6 / colSums(x) )
 
 	return(tpm)
 }
+
+
+
 
