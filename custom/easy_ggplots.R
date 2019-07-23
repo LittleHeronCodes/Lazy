@@ -17,30 +17,6 @@ gg_base_legend <- function() {
 }
 
 
-# set.seed(42)
-# plotDF <- data.frame(
-# 	value = c(rnorm(100,2), rnorm(100,-1)), 
-# 	tag = rep(c('a','b'), each = 100))
-
-# ## base plot reference
-# d1 = density(plotDF$value)
-# d2 = density(plotDF$value[which(plotDF$tag == 'a')])
-# d3 = density(plotDF$value[which(plotDF$tag == 'b')])
-# ylim = range(c(d1$y, d2$y, d3$y))
-# plot(d1, main = 'density plots', col = 'grey25', ylim = ylim)
-# lines(d2, col = 'green')
-# lines(d3, col = 'blue')
-# legend('topright', legend=c('all','a','b'), 
-# 	col=c('grey25','blue','green'), lty=1, xjust=1)
-
-## ggplot mimic
-ggplot(plotDF, aes(x=value)) +
-  geom_line(stat='density', col='grey25') +
-  geom_line(aes(colour=tag), stat='density') +
-  # gg_base_legend() + 
-  scale_x_continuous(breaks=seq(-4,4,1))
-
-
 ##  Themes!  ##
 ### source : https://www.shanelynn.ie/themes-and-colours-for-r-ggplots-with-ggthemr/
 
@@ -68,7 +44,7 @@ theme_grey2 <- function (base_size = 11, base_family = "")
 
 		# Legends
 		legend.background = element_rect(colour = NA), 
-		legend.margin = unit(0.2, "cm"), 
+		legend.spacing = unit(0.2, "cm"), # use legend.margin with margin() property
 		legend.key = element_rect(fill = "grey95", colour = "white"), 
 		legend.key.size = unit(1.2, "lines"), 
 		legend.key.height = NULL, 
@@ -87,9 +63,9 @@ theme_grey2 <- function (base_size = 11, base_family = "")
 		panel.border = element_blank(), 
 		panel.grid.major = element_line(colour = "white"), 
 		panel.grid.minor = element_line(colour = "white", size = 0.25), 
-		panel.margin = unit(half_line, "pt"), 
-		panel.margin.x = NULL, 
-		panel.margin.y = NULL, 
+		panel.spacing = unit(half_line, "pt"), 
+		panel.spacing.x = NULL, 
+		panel.spacing.y = NULL, 
 		panel.ontop = FALSE, 
 
 		strip.background = element_rect(fill = "grey85", colour = NA), 
@@ -105,8 +81,7 @@ theme_grey2 <- function (base_size = 11, base_family = "")
 		complete = TRUE)
 }
 
-# set theme
-theme_set(theme_grey2())
-theme_get()
-
+# # set theme
+# theme_set(theme_grey2())
+# theme_get()
 
