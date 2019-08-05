@@ -20,7 +20,8 @@ dbMatchList <- function(con, table, select_col, match_col, match_list) {
 	select_col = paste0(select_col, collapse = ", ")
 	match_list = paste0(match_list, collapse = "', '")
 
-	stmt = sprintf("SELECT %s FROM %s WHERE %s IN ('%s');",	select_col, table, match_col, match_list)
+	stmt = sprintf("SELECT %s FROM %s WHERE %s IN ('%s');",	
+		select_col, table, match_col, match_list)
 	# print(stmt)
 	results = dbGetQuery(con, stmt)
 	return(results)
